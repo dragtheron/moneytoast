@@ -1,0 +1,12 @@
+## Interface: 90100
+## Title: Money Toast
+## Notes: Notifies about changes in your purse.
+## Author: Tobias Stettner (Dragtheron)
+## Version: 1.0.0
+
+localization-enGB.lua
+localization-deDE.lua
+
+utilities.lua
+MoneyToast.lua
+MoneyToast.xml

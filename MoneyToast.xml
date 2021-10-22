@@ -1,0 +1,68 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/.. \FrameXML\UI.xsd">
+  <Script file="MoneyToast.lua"/>
+  <Frame name="MoneyToast">
+    <Scripts>
+      <OnLoad>
+        self:RegisterEvent("ADDON_LOADED");
+        self:RegisterEvent("PLAYER_MONEY");
+        MoneyToastAddOn:OnLoad();
+      </OnLoad>
+      <OnEvent>
+        MoneyToastAddOn:OnEvent(event);
+      </OnEvent>
+    </Scripts>
+  </Frame>
+  <Frame name="MoneyToast_Widget" parent="UIParent" frameStrata="TOOLTIP" alpha="0" hidden="true">
+    <Size x="249" y="71"/>
+    <Anchors>
+			<Anchor point="TOP" x="0" y="-64"/>
+    </Anchors>
+    <Frames>
+      <Frame name="$parent_Balance">
+        <Size x="249" y="71"/>
+        <Anchors>
+          <Anchor point="TOPLEFT"/>
+        </Anchors>
+        <Layers>
+          <Layer level="BACKGROUND">
+            <Texture parentKey="Background" file="Interface\LootFrame\LootToast" setAllPoints="true">
+              <TexCoords left="0.56347656" right="0.80664063" top="0.28906250" bottom="0.56640625"/>
+            </Texture>
+          </Layer>
+          <Layer level="BORDER">
+            <Texture parentKey="Icon" file="Interface\Icons\INV_Misc_Coin_02">
+              <Size x="38" y="38"/>
+              <Anchors>
+                <Anchor point="LEFT" x="16" y="0"/>
+              </Anchors>
+            </Texture>
+          </Layer>
+          <Layer level="ARTWORK">
+            <Texture parentKey="IconBorder" file="Interface\LootFrame\LootToast">
+              <Size x="45" y="45"/>
+              <Anchors>
+                <Anchor point="CENTER" relativeKey="$parent.Icon" relativePoint="CENTER" x="0" y="0"/>
+              </Anchors>
+              <TexCoords left="0.73242188" right="0.78906250" top="0.57421875" bottom="0.80078125"/>
+            </Texture>
+            <FontString parentKey="Label" inherits="GameFontNormalSmall" justifyH="LEFT">
+              <Anchors>
+                <Anchor point="TOPLEFT" relativeKey="$parent.IconBorder" relativePoint="TOPRIGHT" x="7" y="-3"/>
+              </Anchors>
+            </FontString>
+            <FontString parentKey="Amount" inherits="GameFontHighlightMedium" justifyH="LEFT">
+              <Anchors>
+                <Anchor point="BOTTOMLEFT" relativeKey="$parent.IconBorder" relativePoint="BOTTOMRIGHT" x="10" y="7"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnUpdate>
+            MoneyToastAddOn:_SimpleAnimationTick(elapsed)
+          </OnUpdate>
+        </Scripts>
+      </Frame>
+    </Frames>
+  </Frame>
+</Ui>
