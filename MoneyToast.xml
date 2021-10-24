@@ -15,7 +15,7 @@
   <Frame name="MoneyToast_Widget" parent="UIParent" frameStrata="TOOLTIP" alpha="0" hidden="true">
     <Size x="249" y="71"/>
     <Anchors>
-			<Anchor point="TOP" x="0" y="-64"/>
+			<Anchor point="TOP" x="0" y="-32"/>
     </Anchors>
     <Frames>
       <Frame name="$parent_Balance">

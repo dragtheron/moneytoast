@@ -65,7 +65,8 @@ function gb:OnLoad()
     duration = 0.3, 
     onUpdate = FrameFadeIn_OnUpdate, 
     onComplete = FrameFadeIn_OnComplete,
-    resetOnPlay = false
+    resetOnPlay = false,
+    delayComplete = 1
   });
 
   gb:_SimpleAnimationCreate("FrameFadeOut", {
