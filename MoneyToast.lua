@@ -23,7 +23,6 @@ function gb:OnEvent(event)
 end
 
 local FrameFadeIn_OnComplete = function()
-  frameVisible = true;
   _G["MoneyToast_Widget"]:SetAlpha(1);
   gb:_SimpleAnimationPlay("BalanceAnimation", _currentBalance);
 end
@@ -33,6 +32,7 @@ local FrameFadeOut_OnComplete = function()
 end
 
 local FrameFadeIn_OnUpdate = function(value)
+  frameVisible = true;
   _G["MoneyToast_Widget"]:SetAlpha(value);
 end
 
@@ -61,9 +61,9 @@ function gb:OnLoad()
 
   gb:_SimpleAnimationCreate("FrameFadeIn", {
     startValue = 0,
-    targetValue = 1, 
-    duration = 0.3, 
-    onUpdate = FrameFadeIn_OnUpdate, 
+    targetValue = 1,
+    duration = 0.3,
+    onUpdate = FrameFadeIn_OnUpdate,
     onComplete = FrameFadeIn_OnComplete,
     resetOnPlay = false,
     delayComplete = 1
@@ -71,15 +71,15 @@ function gb:OnLoad()
 
   gb:_SimpleAnimationCreate("FrameFadeOut", {
     startValue = 1,
-    targetValue = 0, 
-    duration = 0.3, 
+    targetValue = 0,
+    duration = 0.3,
     onUpdate = FrameFadeOut_OnUpdate,
     onComplete = FrameFadeOut_OnComplete
   });
 
   gb:_SimpleAnimationCreate("BalanceAnimation", {
-    duration = 2, 
-    onUpdate = BalanceAnimation_OnUpdate, 
+    duration = 2,
+    onUpdate = BalanceAnimation_OnUpdate,
     onComplete = BalanceAnimation_OnComplete,
     delayComplete = 5,
     preserveValue = true
@@ -188,7 +188,7 @@ end
 function gb:_SimpleAnimationTick(elapsed)
   for animationId, config in pairs(animations) do
     if config.active and not config.complete then
-      if config.complete then 
+      if config.complete then
         -- wait delayComplete
         if config.elapsed >= config.duration + config.delayStart + config.delayComplete then
           if config.onComplete ~= nil then
@@ -205,7 +205,7 @@ function gb:_SimpleAnimationTick(elapsed)
         -- trigger complete now?
         if config.elapsed >= config.delayStart then
           if config.elapsed < config.delayStart + config.duration then
-            config.currentValue = config.startValue + ((config.elapsed - config.delayStart) / config.duration) * config.delta; 
+            config.currentValue = config.startValue + ((config.elapsed - config.delayStart) / config.duration) * config.delta;
             if config.onUpdate ~= nil then
               config.onUpdate(config.currentValue);
             end
@@ -237,7 +237,7 @@ end
 
 function gb:_PrintCurrentBalance()
   print(string.format('Current Gold Balance: %i', _currentBalance));
-end 
+end
 
 function gb:_SetCurrentBalance(newBalance)
   _currentBalance = newBalance;
@@ -246,6 +246,10 @@ end
 function gb:_Update(animated)
   local newBalance = GetMoney();
   local delta = newBalance - _currentBalance;
+  if _currentBalance == 0 then
+    _currentBalance = newBalance;
+    return;
+  end
   if abs(delta) > 0 then
     gb:_SetCurrentBalance(newBalance);
     if animated then
