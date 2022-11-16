@@ -1,0 +1,9 @@
+package-as: MoneyToast
+
+ignore:
+  - LICENSE
+  - README.md
+
+manual-changelog: CHANGELOG.md
+
+license-output: LICENSE
