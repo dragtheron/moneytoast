@@ -1,8 +1,8 @@
-## Interface: 100000
+## Interface: 30400
 ## Title: Money Toast
 ## Notes: Immersive notifications about gold changes
 ## Author: Tobias Stettner (Dragtheron)
-## Version: 1.1.2
+## Version: 1.1.4-beta0
 
 localization-enGB.lua
 localization-deDE.lua

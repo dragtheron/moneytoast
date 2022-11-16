@@ -248,6 +248,7 @@ function gb:_Update(animated)
   local delta = newBalance - _currentBalance;
   if _currentBalance == 0 then
     _currentBalance = newBalance;
+    gb:_SimpleAnimationSetCurrentValue("BalanceAnimation",_currentBalance);
     return;
   end
   if abs(delta) > 0 then
