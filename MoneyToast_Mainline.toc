@@ -1,0 +1,13 @@
+## Interface: 100002
+## Title: Money Toast
+## Notes: Immersive notifications about gold changes
+## Author: Tobias Stettner (Dragtheron)
+## Version: 1.1.4
+
+localization-enGB.lua
+localization-deDE.lua
+localization-ruRU.lua
+
+utilities.lua
+MoneyToast.lua
+MoneyToast.xml
