@@ -4,6 +4,10 @@ MoneyToastAddOnGlobalConfig = {
   animationDuration = 5,
 }
 
+MONEYTOAST_VARIABLES = {
+  stayVisible = false,
+}
+
 local gb = MoneyToastAddOn;
 
 local _currentBalance = 0;
@@ -23,41 +27,74 @@ function gb:OnEvent(event)
 end
 
 local FrameFadeIn_OnComplete = function()
-  _G["MoneyToast_Widget"]:SetAlpha(1);
+  if not MONEYTOAST_VARIABLES.stayVisible then
+    _G["MoneyToast_Widget"]:SetAlpha(1);
+  end
   gb:_SimpleAnimationPlay("BalanceAnimation", _currentBalance);
 end
 
 local FrameFadeOut_OnComplete = function()
-  _G["MoneyToast_Widget"]:Hide();
+  if not MONEYTOAST_VARIABLES.stayVisible then
+    _G["MoneyToast_Widget"]:Hide();
+  end
 end
 
 local FrameFadeIn_OnUpdate = function(value)
   frameVisible = true;
-  _G["MoneyToast_Widget"]:SetAlpha(value);
+  if not MONEYTOAST_VARIABLES.stayVisible then
+    _G["MoneyToast_Widget"]:SetAlpha(value);
+  end
 end
 
 local FrameFadeOut_OnUpdate = function(value)
-  _G["MoneyToast_Widget"]:SetAlpha(value);
+  if not MONEYTOAST_VARIABLES.stayVisible then
+    _G["MoneyToast_Widget"]:SetAlpha(value);
+  end
 end
 
 local BalanceAnimation_OnComplete = function()
   frameVisible = false;
-  gb:_SimpleAnimationPlay("FrameFadeOut");
+  if MONEYTOAST_VARIABLES.stayVisible then
+    gb:_SetDefaultBalance();
+  else
+    gb:_SimpleAnimationPlay("FrameFadeOut");
+  end
 end
 
 local BalanceAnimation_OnUpdate = function(value)
   _G["MoneyToast_Widget_Balance"].Amount:SetText(GetMoneyStringPadded(value, true));
 end
 
+function gb:_HideOrShowWidget()
+  if MONEYTOAST_VARIABLES.stayVisible then
+    MoneyToast_Widget:Show();
+    MoneyToast_Widget:SetAlpha(1);
+  else
+    MoneyToast_Widget:Hide();
+    MoneyToast_Widget:SetAlpha(0);
+  end
+end
+
 function gb:OnLoad()
-  SlashCmdList["GOLDBELL"] = function(msg)
-    local _, _, cmd, args = string.find(msg, "%s?([%w\-\_]+)%s?(.*)");
-    if true then
+  SlashCmdList["MONEYTOAST"] = function(msg)
+    local _, _, cmd, args = string.find(msg, "%s?(%w+)%s?(.*)");
+    if cmd == "stay" then
+      if args == "on" or args == "true" or args == "1" then
+        MONEYTOAST_VARIABLES.stayVisible = true
+        gb:_HideOrShowWidget();
+      elseif args == "off" or args == "false" or args == "0" then
+        MONEYTOAST_VARIABLES.stayVisible = false
+        gb:_HideOrShowWidget();
+      end
+    elseif cmd == "reset" then
+      MoneyToast_Widget:ClearAllPoints();
+      MoneyToast_Widget:SetPoint("TOP", 0, -32);
+    else
       gb:_CommandHelp();
     end
   end
-  -- /gb is reserved for guild browser
-  SLASH_GOLDBELL1 = "/goldbell";
+
+  SLASH_MONEYTOAST1 = "/moneytoast";
 
   gb:_SimpleAnimationCreate("FrameFadeIn", {
     startValue = 0,
@@ -91,6 +128,10 @@ end
 
 function gb:_CommandHelp()
   print("MoneyToast v1.0.0 Loaded");
+  print("Available Commands:");
+  print("/moneytoast stay on - Display the notification window so that it can be moved.");
+  print("/moneytoast stay off - Re-enable the fade animations.");
+  print("/moneytoast reset - Resets the position of the notification frame.");
 end
 
 function gb:_CommandSetDuration(seconds)
@@ -243,7 +284,13 @@ function gb:_SetCurrentBalance(newBalance)
   _currentBalance = newBalance;
 end
 
+function gb:_SetDefaultBalance()
+  _G["MoneyToast_Widget_Balance"].Label:SetText(MT_CURRENT_BALANCE);
+end
+
 function gb:_Update(animated)
+  gb:_HideOrShowWidget();
+  gb:_SetDefaultBalance();
   local newBalance = GetMoney();
   local delta = newBalance - _currentBalance;
   if _currentBalance == 0 then
