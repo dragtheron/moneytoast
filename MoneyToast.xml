@@ -12,7 +12,7 @@
       </OnEvent>
     </Scripts>
   </Frame>
-  <Frame name="MoneyToast_Widget" parent="UIParent" frameStrata="TOOLTIP" alpha="0" hidden="true" movable="true" enableMouse="true">
+  <Frame name="MoneyToast_Widget" parent="UIParent" frameStrata="MEDIUM" alpha="0" hidden="true" movable="true" enableMouse="true">
     <Size x="249" y="71"/>
     <Scripts>
       <OnLoad>

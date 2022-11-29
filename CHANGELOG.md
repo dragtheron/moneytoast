@@ -2,7 +2,16 @@
 
 ---
 
-## 1.2.0-beta0 (November 19, 2022)
+## 1.2.1 (December 06, 2022)
+
+### [FIXED] Tainting Errors
+
+Fixed an issue where Money Toast may causes a taining error, resulting in a
+"Gather Panel has been blocked..." and thus removing access to further actions.
+
+---
+
+## 1.2.0 (November 19, 2022)
 
 ### [ADDED] Movable Frame
 
