@@ -1,9 +1,5 @@
 -- utilities
 
-COPPER_PER_SILVER = 100;
-SILVER_PER_GOLD = 100;
-COPPER_PER_GOLD = COPPER_PER_SILVER * SILVER_PER_GOLD;
-
 function GetMoneyStringPadded(money, separateThousands)
 	local goldString, silverString, copperString;
 	local gold = floor(money / (COPPER_PER_SILVER * SILVER_PER_GOLD));

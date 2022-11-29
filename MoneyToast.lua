@@ -134,13 +134,6 @@ function gb:_CommandHelp()
   print("/moneytoast reset - Resets the position of the notification frame.");
 end
 
-function gb:_CommandSetDuration(seconds)
-  MoneyToastAddOnGlobalConfig.animationDuration = seconds;
-  gb:_SetCurrentBalance(0);
-  balanceAnimation.currentValue = 0;
-  gb:_Update(true);
-end
-
 
 -- local functions
 
