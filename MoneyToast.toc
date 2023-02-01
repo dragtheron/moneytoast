@@ -3,7 +3,6 @@
 ## Notes: Immersive notifications about gold changes
 ## Author: Tobias Stettner (Dragtheron)
 ## Version: 1.2.3
-
 ## SavedVariables: MONEYTOAST_VARIABLES
 
 localization-enGB.lua
