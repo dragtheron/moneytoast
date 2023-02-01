@@ -2,6 +2,14 @@
 
 ---
 
+## 1.2.3 (Frbruary 01, 2023)
+
+### [CHANGED]
+
+- Updated to interface version 10.0.5.
+
+---
+
 ## 1.2.1 (December 06, 2022)
 
 ### [FIXED] Tainting Errors
