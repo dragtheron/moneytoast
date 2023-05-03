@@ -2,9 +2,11 @@
 
 ---
 
-## 1.2.3 (Frbruary 01, 2023)
+## 1.2.4 (May 3, 2023)
 
-### [CHANGED]
+- Updated for WoW 10.1.0
+
+## 1.2.3 (February 01, 2023)
 
 - Updated to interface version 10.0.5.
 
