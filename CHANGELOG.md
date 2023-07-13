@@ -2,6 +2,10 @@
 
 ---
 
+## 1.2.5 (July 13, 2023)
+
+- Updated for WoW 10.1.5
+
 ## 1.2.4 (May 3, 2023)
 
 - Updated for WoW 10.1.0
