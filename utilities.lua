@@ -24,11 +24,11 @@ function GetMoneyStringPadded(money, separateThousands)
 		copperString = COPPER_AMOUNT_TEXTURE:format(copper, 0, 0);
 	end
 
-  if silver < 10 then
+  if gold > 0 and silver < 10 then
     silverString = "0"..silverString;
   end
 
-  if copper < 10 then
+  if silver > 0 and copper < 10 then
     copperString = "0"..copperString;
   end
 

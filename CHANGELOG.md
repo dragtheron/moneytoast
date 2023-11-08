@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.2.6 (September 6, 2023)
+
+- Bumped to interface version 10.1.7
+- Added support for WoW Classic version 1.14.1
+
 ---
 
 ## 1.2.5 (July 13, 2023)
