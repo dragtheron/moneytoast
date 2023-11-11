@@ -10,3 +10,4 @@ After this animation the notification disappears automatically.
 
 - German
 - Russian (contributed by [@Hubbotu](https://github.com/Hubbotu))
+- Spanish (contributed by [@Furg](https://github.com/Furg))

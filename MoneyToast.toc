@@ -8,6 +8,7 @@
 localization-enGB.lua
 localization-deDE.lua
 localization-ruRU.lua
+localization-esES.lua
 
 utilities.lua
 MoneyToast.lua
