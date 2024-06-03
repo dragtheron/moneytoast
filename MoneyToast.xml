@@ -1,18 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/.. \FrameXML\UI.xsd">
   <Script file="MoneyToast.lua"/>
-  <Frame name="MoneyToast">
-    <Scripts>
-      <OnLoad>
-        self:RegisterEvent("ADDON_LOADED");
-        self:RegisterEvent("PLAYER_MONEY");
-        MoneyToastAddOn:OnLoad();
-      </OnLoad>
-      <OnEvent>
-        MoneyToastAddOn:OnEvent(event);
-      </OnEvent>
-    </Scripts>
-  </Frame>
-  <Frame name="MoneyToast_Widget" parent="UIParent" frameStrata="MEDIUM" alpha="0" hidden="true" movable="true" enableMouse="true">
+  <Frame virtual="true" name="MoneyToast_Widget_Template" parent="UIParent" frameStrata="MEDIUM" alpha="0" hidden="true" movable="true" enableMouse="true">
     <Size x="249" y="71"/>
     <Scripts>
       <OnLoad>
@@ -29,7 +17,7 @@
 			<Anchor point="TOP" x="0" y="-32"/>
     </Anchors>
     <Frames>
-      <Frame name="$parent_Balance">
+      <Frame name="$parent_Balance" parentKey="Balance">
         <Size x="249" y="71"/>
         <Anchors>
           <Anchor point="TOPLEFT"/>
@@ -68,11 +56,6 @@
             </FontString>
           </Layer>
         </Layers>
-        <Scripts>
-          <OnUpdate>
-            MoneyToastAddOn:_SimpleAnimationTick(elapsed)
-          </OnUpdate>
-        </Scripts>
       </Frame>
     </Frames>
   </Frame>

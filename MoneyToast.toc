@@ -9,6 +9,6 @@ localization-enGB.lua
 localization-deDE.lua
 localization-ruRU.lua
 
-utilities.lua
-MoneyToast.lua
+Utilities.lua
+Animations.xml
 MoneyToast.xml

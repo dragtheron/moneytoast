@@ -1,25 +1,20 @@
--- utilities
+local _, addon = ...
+---@cast addon MoneyToastAddon
 
-function GetMoneyStringPadded(money, separateThousands)
+local getMoneyStringPadded = function(money, separateThousands)
+	money = abs(money)
 	local goldString, silverString, copperString;
 	local gold = floor(money / (COPPER_PER_SILVER * SILVER_PER_GOLD));
 	local silver = floor((money - (gold * COPPER_PER_SILVER * SILVER_PER_GOLD)) / COPPER_PER_SILVER);
 	local copper = mod(money, COPPER_PER_SILVER);
 
+	---@diagnostic disable-next-line: undefined-global
 	if ( ENABLE_COLORBLIND_MODE == "1" ) then
-		if (separateThousands) then
-			goldString = FormatLargeNumber(gold)..GOLD_AMOUNT_SYMBOL;
-		else
-			goldString = gold..GOLD_AMOUNT_SYMBOL;
-		end
+		goldString = FormatLargeNumber(gold)..GOLD_AMOUNT_SYMBOL;
 		silverString = silver..SILVER_AMOUNT_SYMBOL;
 		copperString = copper..COPPER_AMOUNT_SYMBOL;
 	else
-		if (separateThousands) then
-			goldString = GOLD_AMOUNT_TEXTURE_STRING:format(FormatLargeNumber(gold), 0, 0);
-		else
-			goldString = GOLD_AMOUNT_TEXTURE:format(gold, 0, 0);
-		end
+		goldString = GOLD_AMOUNT_TEXTURE_STRING:format(FormatLargeNumber(gold), 0, 0);
 		silverString = SILVER_AMOUNT_TEXTURE:format(silver, 0, 0);
 		copperString = COPPER_AMOUNT_TEXTURE:format(copper, 0, 0);
 	end
@@ -48,3 +43,28 @@ function GetMoneyStringPadded(money, separateThousands)
 
 	return moneyString;
 end
+
+local shallowCopy = function(objToCopy)
+	local originalType = type(objToCopy)
+	local copy
+
+	if originalType == "table" then
+		copy = {}
+
+		for originalKey, originalValue in pairs(objToCopy) do
+			copy[originalKey] = originalValue
+		end
+	else
+		copy = objToCopy
+	end
+
+	return copy
+end
+
+---@class UtilitiesModule
+local utilitiesModule = {
+	GetMoneyStringPadded = getMoneyStringPadded,
+	ShallowCopy = shallowCopy,
+}
+
+addon.Utilities = utilitiesModule

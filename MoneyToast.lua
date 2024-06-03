@@ -1,315 +1,351 @@
-MoneyToastAddOn = { };
+local _, addon = ...
 
-MoneyToastAddOnGlobalConfig = {
-  animationDuration = 5,
-}
+---@cast addon MoneyToastAddon
 
-MONEYTOAST_VARIABLES = {
+local defaultConfig = {
   stayVisible = false,
+  widgets = {
+    currencies = {
+      2778, -- Bronze (MoP: Remix)
+    },
+    gold = true,
+  }
 }
 
-local gb = MoneyToastAddOn;
+local loaded = false
+local animationGroupIdCounter = 0
 
-local _currentBalance = 0;
-local loaded = false;
-local frameVisible = false;
-local deltaBalance = 0;
-local animations = { };
-
-function gb:OnEvent(event)
-  if event == "ADDON_LOADED" and not loaded then
-    gb:_Update(false);
-    loaded = true;
+local updateVariables = function()
+  if not MONEYTOAST_VARIABLES then
+    MONEYTOAST_VARIABLES = defaultConfig
+    return
   end
-  if loaded then
-    gb:_Update(true);
+
+  if not MONEYTOAST_VARIABLES.widgets then
+    MONEYTOAST_VARIABLES.widgets = defaultConfig.widgets
   end
 end
 
-local FrameFadeIn_OnComplete = function()
-  if not MONEYTOAST_VARIABLES.stayVisible then
-    _G["MoneyToast_Widget"]:SetAlpha(1);
+---@param widgetType string
+---@param dataId integer | nil
+local getWidgetName = function(widgetType, dataId)
+  return "MoneyToast_Widget_" .. widgetType .. (dataId or "")
+end
+
+---@param widgetType string
+---@param dataId integer | nil
+local createWidget = function(self, widgetType, dataId)
+  local frameName = getWidgetName(widgetType, dataId)
+  local frame = CreateFrame("Frame", frameName, _G["MoneyToast"], "MoneyToast_Widget_Template")
+  ---@cast frame WidgetFrame
+
+  local iconFileId
+
+  if widgetType == "Gold" then
+    iconFileId = "Interface\\Icons\\INV_Misc_Coin_02"
+  elseif widgetType == "Currency" and dataId ~= nil then
+    local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(dataId)
+    iconFileId = currencyInfo.iconFileID
   end
-  gb:_SimpleAnimationPlay("BalanceAnimation", _currentBalance);
+
+  ---@diagnostic disable-next-line: undefined-field
+  frame.Balance.Icon:SetTexture(iconFileId)
+  frame:SetScript("OnUpdate", function(frame, elapsed) addon.Animations:OnUpdate(elapsed) end)
+  animationGroupIdCounter = animationGroupIdCounter + 1
+
+  local widgetInfo = {
+    type = widgetType,
+    dataId = dataId,
+    visible = false,
+    balance = 0,
+    balanceDelta = 0,
+    earnedThisSession = 0,
+    animationGroupId = animationGroupIdCounter
+  }
+
+  self.widgets[frameName] = frame
+  self.widgetInfo[frameName] = widgetInfo
 end
 
-local FrameFadeOut_OnComplete = function()
-  if not MONEYTOAST_VARIABLES.stayVisible then
-    _G["MoneyToast_Widget"]:Hide();
+---@param self CoreModule
+local initWidgets = function(self)
+  if MONEYTOAST_VARIABLES.widgets.gold then
+    self:CreateWidget("Gold")
   end
-end
 
-local FrameFadeIn_OnUpdate = function(value)
-  frameVisible = true;
-  if not MONEYTOAST_VARIABLES.stayVisible then
-    _G["MoneyToast_Widget"]:SetAlpha(value);
+  for _, currency in ipairs(MONEYTOAST_VARIABLES.widgets.currencies) do
+    self:CreateWidget("Currency", currency)
   end
+
+  self:RegisterAnimations();
 end
 
-local FrameFadeOut_OnUpdate = function(value)
-  if not MONEYTOAST_VARIABLES.stayVisible then
-    _G["MoneyToast_Widget"]:SetAlpha(value);
-  end
-end
-
-local BalanceAnimation_OnComplete = function()
-  frameVisible = false;
-  if MONEYTOAST_VARIABLES.stayVisible then
-    gb:_SetDefaultBalance();
-  else
-    gb:_SimpleAnimationPlay("FrameFadeOut");
-  end
-end
-
-local BalanceAnimation_OnUpdate = function(value)
-  _G["MoneyToast_Widget_Balance"].Amount:SetText(GetMoneyStringPadded(value, true));
-end
-
-function gb:_HideOrShowWidget()
-  if MONEYTOAST_VARIABLES.stayVisible then
-    MoneyToast_Widget:Show();
-    MoneyToast_Widget:SetAlpha(1);
-  else
-    MoneyToast_Widget:Hide();
-    MoneyToast_Widget:SetAlpha(0);
-  end
-end
-
-function gb:OnLoad()
-  SlashCmdList["MONEYTOAST"] = function(msg)
-    local _, _, cmd, args = string.find(msg, "%s?(%w+)%s?(.*)");
-    if cmd == "stay" then
-      if args == "on" or args == "true" or args == "1" then
-        MONEYTOAST_VARIABLES.stayVisible = true
-        gb:_HideOrShowWidget();
-      elseif args == "off" or args == "false" or args == "0" then
-        MONEYTOAST_VARIABLES.stayVisible = false
-        gb:_HideOrShowWidget();
-      end
-    elseif cmd == "reset" then
-      MoneyToast_Widget:ClearAllPoints();
-      MoneyToast_Widget:SetPoint("TOP", 0, -32);
-    else
-      gb:_CommandHelp();
+---@param currencyType integer
+local isCurrencyTracked = function(currencyType)
+  for _, currencyTracked in ipairs(MONEYTOAST_VARIABLES.widgets.currencies) do
+    if currencyTracked == currencyType then
+      return true
     end
   end
 
-  SLASH_MONEYTOAST1 = "/moneytoast";
+  return false
+end
 
-  gb:_SimpleAnimationCreate("FrameFadeIn", {
-    startValue = 0,
-    targetValue = 1,
-    duration = 0.3,
-    onUpdate = FrameFadeIn_OnUpdate,
-    onComplete = FrameFadeIn_OnComplete,
-    resetOnPlay = false,
-    delayComplete = 1
-  });
+---@param event WowEvent
+local onEvent = function(_, event, ...)
+  if event == "VARIABLES_LOADED" then
+    updateVariables()
+    addon.Core:InitWidgets();
+    loaded = true;
+  elseif event == "PLAYER_ENTERING_WORLD" then
+    addon.Core:UpdateWidgetsSilently();
+  elseif event == "PLAYER_MONEY" then
+    addon.Core:UpdateWithAnimation("Gold");
+  elseif event == "CURRENCY_DISPLAY_UPDATE" then
+    if not loaded then
+      return
+    end
 
-  gb:_SimpleAnimationCreate("FrameFadeOut", {
-    startValue = 1,
-    targetValue = 0,
-    duration = 0.3,
-    onUpdate = FrameFadeOut_OnUpdate,
-    onComplete = FrameFadeOut_OnComplete
-  });
+    local currencyType = ...
 
-  gb:_SimpleAnimationCreate("BalanceAnimation", {
-    duration = 2,
-    onUpdate = BalanceAnimation_OnUpdate,
-    onComplete = BalanceAnimation_OnComplete,
-    delayComplete = 5,
-    preserveValue = true
-  });
+    if not currencyType then
+      return
+    end
+
+    if isCurrencyTracked(currencyType) then
+      addon.Core:UpdateWithAnimation("Currency", currencyType)
+    end
+  end
+end
+
+---@param frame WidgetFrame
+local hideOrShowWidget = function(frame)
+  if MONEYTOAST_VARIABLES.stayVisible then
+    frame:Show()
+    frame:SetAlpha(1)
+  else
+    frame:Hide()
+    frame:SetAlpha(0)
+  end
+end
+
+---@param frame WidgetFrame
+local resetWidget = function(frame)
+  frame:ClearAllPoints()
+  frame:SetPoint("TOP", 0, -32)
+end
+
+---@param self CoreModule
+local resetWidgets = function(self)
+  for _, frame in pairs(self.widgets) do
+    resetWidget(frame)
+  end
+end
+
+---@param self CoreModule
+local hideOrShowWidgets = function(self)
+  for _, frame in pairs(self.widgets) do
+    hideOrShowWidget(frame)
+  end
+end
+
+---@param self CoreModule
+local registerAnimations = function(self)
+  for frameName, frame in pairs(self.widgets) do
+    local widgetInfo = self.widgetInfo[frameName]
+
+    addon.Animations:RegisterAnimation("Balance", widgetInfo.animationGroupId, {
+      frame = frame,
+      widgetInfo = widgetInfo,
+    })
+
+    addon.Animations:RegisterAnimation("FrameFadeIn", widgetInfo.animationGroupId, {
+      frame = frame,
+      widgetInfo = widgetInfo,
+    })
+
+    addon.Animations:RegisterAnimation("FrameFadeOut", widgetInfo.animationGroupId, {
+      frame = frame,
+    })
+  end
+end
+
+---@param self CoreModule
+local onLoad = function(self)
+  SlashCmdList["MONEYTOAST"] = function(msg)
+    local _, _, cmd, args = string.find(msg, "%s?(%w+)%s?(.*)");
+    if cmd == "fade" then
+      if args == "on" or args == "true" or args == "1" then
+        MONEYTOAST_VARIABLES.stayVisible = true;
+      elseif args == "off" or args == "false" or args == "0" then
+        MONEYTOAST_VARIABLES.stayVisible = false;
+      end
+      self:HideOrShowWidgets();
+    elseif cmd == "reset" then
+      self:ResetWidgets()
+    else
+      self:CommandHelp()
+    end
+  end
+
+  SLASH_MONEYTOAST1 = "/moneytoast"
 end
 
 
 -- commands
 
-function gb:_CommandHelp()
-  print("MoneyToast v1.0.0 Loaded");
-  print("Available Commands:");
-  print("/moneytoast stay on - Display the notification window so that it can be moved.");
-  print("/moneytoast stay off - Re-enable the fade animations.");
-  print("/moneytoast reset - Resets the position of the notification frame.");
+local commandHelp = function()
+  print("MoneyToast Commands:")
+  print("/moneytoast fade on - Always show the widgets so they can be moved.")
+  print("/moneytoast fade off - Re-enable the fade animations so that they disappear automatically.")
+  print("/moneytoast reset - Resets the position of the notification frames.")
 end
 
 
 -- local functions
 
-function gb:_TransitionGold(newBalance)
-  gb:_AnimationStart(newBalance);
-  gb:_SetCurrentBalance(newBalance);
-  gb:_PrintCurrentBalance();
+---@param widgetInfo WidgetInfo
+---@param newBalance number
+local setCurrentBalance = function(widgetInfo, newBalance)
+  if widgetInfo.balance ~= 0 then
+    local delta = newBalance - widgetInfo.balance
+    widgetInfo.earnedThisSession = widgetInfo.earnedThisSession + delta
+  end
+
+  widgetInfo.balance = newBalance;
 end
 
-function gb:_SimpleAnimationPlay(animationId, targetValue)
-  local config = animations[animationId];
-  if config.currentValue == nil then
-    config.currentValue = 0.0
+---@param self CoreModule
+---@param widgetName string
+local setDefaultBalance = function(self, widgetName)
+  local frame = self.widgets[widgetName]
+  local widgetInfo = self.widgetInfo[widgetName]
+  local label;
+
+  if widgetInfo.type == "Gold" then
+    label = MT_CURRENT_BALANCE
+  elseif widgetInfo.type == "Currency" then
+    local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(widgetInfo.dataId)
+    label = currencyInfo.name
   end
-  config.startValue = config.currentValue;
-  if targetValue ~= nil then
-    config.targetValue = targetValue;
-  end
-  config.delta = config.targetValue - config.startValue;
-  if config.resetOnPlay or config.complete then
-    config.elapsed = 0;
-  end
-  config.active = true;
-  config.complete = false;
+
+  frame.Balance.Label:SetText(label)
 end
 
-function gb:_SimpleAnimationCancel(animationId, triggerCompletion)
-  local config = animations[animationId];
-  if config.active then
-    local config = animations[animationId];
-    if triggerCompletion then
-      config.onComplete();
-    end
-    config.complete = true;
-    config.active = false;
+---@param widgetInfo WidgetInfo
+local getBalanceForWidget = function(widgetInfo)
+  if widgetInfo.type == "Gold" then
+    return GetMoney()
+  elseif widgetInfo.type == "Currency" then
+    local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(widgetInfo.dataId)
+    return currencyInfo.quantity
   end
+
+  error("No balance found for this widget.")
 end
 
-function gb:_SimpleAnimationSetCurrentValue(animationId, currentValue)
-  animations[animationId].currentValue = currentValue;
-  if animations[animationId].onUpdate then
-    animations[animationId].onUpdate(currentValue);
-  end
-end
-
-function gb:_SimpleAnimationCreate(animationId, options)
-  if loaded then error("cannot create animation when already loaded.") end
-  if options.startValue == nil then
-    options.startValue = 0.0
-  end
-  if options.targetValue == nil then
-    options.targetValue = 0.0
-  end
-  if options.delayComplete == nil then
-    options.delayComplete = 0.0
-  end
-  if options.delayStart == nil then
-    options.delayStart = 0.0
-  end
-  if options.resetOnPlay == nil then
-    options.resetOnPlay = true
-  end
-  local config = {
-    active = false,
-    complete = true,
-    elapsed = 0,
-    startValue = options.startValue,
-    currentValue = options.startValue,
-    targetValue = options.targetValue,
-    delayStart = options.delayStart,
-    delayComplete = options.delayComplete,
-    delta = options.targetValue - options.startValue,
-    duration = options.duration,
-    onUpdate = options.onUpdate,
-    onComplete = options.onComplete,
-    resetOnPlay = options.resetOnPlay,
-    preserveValue = options.preserveValue
-  };
-  if animations[animationId] == nil then
-    animations[animationId] = config;
-  else
-    error("Animation Override Not Allowed");
+---@param widgetInfo WidgetInfo
+local getBalanceLabel = function(widgetInfo)
+  if widgetInfo.type == "Gold" then
+    return widgetInfo.balanceDelta > 0
+      and string.format(MT_MONEY_RECEIVED, addon.Utilities.GetMoneyStringPadded(abs(widgetInfo.balanceDelta), true))
+      or string.format(MT_MONEY_SPENT, addon.Utilities.GetMoneyStringPadded(abs(widgetInfo.balanceDelta), true))
+  elseif widgetInfo.type == "Currency" then
+    return widgetInfo.balanceDelta > 0
+      and string.format(MT_MONEY_RECEIVED, FormatLargeNumber(abs(widgetInfo.balanceDelta)))
+      or string.format(MT_MONEY_SPENT, FormatLargeNumber(abs(widgetInfo.balanceDelta)))
   end
 end
 
-function gb:_SimpleAnimationTick(elapsed)
-  for animationId, config in pairs(animations) do
-    if config.active and not config.complete then
-      if config.complete then
-        -- wait delayComplete
-        if config.elapsed >= config.duration + config.delayStart + config.delayComplete then
-          if config.onComplete ~= nil then
-            config.onComplete();
-            config.active = false;
-          end
-        end
-      else
-        if config.elapsed == 0 then
-          config.elapsed = 0.01;
-        else
-          config.elapsed = config.elapsed + elapsed;
-        end
-        -- trigger complete now?
-        if config.elapsed >= config.delayStart then
-          if config.elapsed < config.delayStart + config.duration then
-            config.currentValue = config.startValue + ((config.elapsed - config.delayStart) / config.duration) * config.delta;
-            if config.onUpdate ~= nil then
-              config.onUpdate(config.currentValue);
-            end
-          else
-            if not config.preserveValue then
-              config.currentValue = config.startValue;
-            else
-              config.currentValue = config.targetValue;
-            end
-            config.onUpdate(config.targetValue);
-          end
-        end
-        if config.elapsed >= config.duration + config.delayStart + config.delayComplete then
-          if config.onComplete ~= nil then
-            config.onComplete();
-          end
-          config.complete = true;
-          return;
-        end
-      end
-    end
-  end
-end
+---@param self CoreModule
+---@param widgetName string
+---@param animated boolean
+local update = function(self, widgetName, animated)
+  local widgetInfo = self.widgetInfo[widgetName]
+  local frame = self.widgets[widgetName]
+  hideOrShowWidget(frame)
+  self:SetDefaultBalance(widgetName)
+  local newBalance = getBalanceForWidget(widgetInfo)
+  local delta = widgetInfo.balance > 0 and newBalance - widgetInfo.balance or 0
+  setCurrentBalance(widgetInfo, newBalance)
 
-function gb:_Demo(amount)
-  amount = tonumber(amount);
-  gb:_TransitionGold(_currentBalance + amount);
-end
-
-function gb:_PrintCurrentBalance()
-  print(string.format('Current Gold Balance: %i', _currentBalance));
-end
-
-function gb:_SetCurrentBalance(newBalance)
-  _currentBalance = newBalance;
-end
-
-function gb:_SetDefaultBalance()
-  _G["MoneyToast_Widget_Balance"].Label:SetText(MT_CURRENT_BALANCE);
-end
-
-function gb:_Update(animated)
-  gb:_HideOrShowWidget();
-  gb:_SetDefaultBalance();
-  local newBalance = GetMoney();
-  local delta = newBalance - _currentBalance;
-  if _currentBalance == 0 then
-    _currentBalance = newBalance;
-    gb:_SimpleAnimationSetCurrentValue("BalanceAnimation",_currentBalance);
+  if not animated then
+    addon.Animations:SetAnimationValue("Balance", widgetInfo.animationGroupId, widgetInfo.balance)
     return;
   end
-  if abs(delta) > 0 then
-    gb:_SetCurrentBalance(newBalance);
-    if animated then
-      _G["MoneyToast_Widget"]:Show();
-      gb:_SimpleAnimationCancel("FrameFadeOut");
-      if not frameVisible then
-        deltaBalance = delta;
-        gb:_SimpleAnimationPlay("FrameFadeIn");
-      else
-        deltaBalance = deltaBalance + delta;
-        FrameFadeIn_OnComplete();
-      end
-      if deltaBalance > 0 then
-        _G["MoneyToast_Widget_Balance"].Label:SetText(string.format(MT_MONEY_RECEIVED, GetMoneyStringPadded(abs(deltaBalance), true)));
-      else
-        _G["MoneyToast_Widget_Balance"].Label:SetText(string.format(MT_MONEY_SPENT, GetMoneyStringPadded(abs(deltaBalance), true)));
-      end
-    else
-      gb:_SimpleAnimationSetCurrentValue("BalanceAnimation",_currentBalance);
-    end
+
+  frame:Show()
+  addon.Animations:CancelAnimation("FrameFadeOut", widgetInfo.animationGroupId)
+
+  if not widgetInfo.visible then
+    widgetInfo.balanceDelta = abs(delta)
+    addon.Animations:PlayAnimation("FrameFadeIn", widgetInfo.animationGroupId)
+  else
+    widgetInfo.balanceDelta = widgetInfo.balanceDelta + abs(delta)
+    addon.Animations:SkipAnimation("FrameFadeIn", widgetInfo.animationGroupId)
+  end
+
+  local label = getBalanceLabel(widgetInfo)
+  frame.Balance.Label:SetText(label);
+end
+
+---@param self CoreModule
+local updateWidgets = function(self, withAnimation)
+  for widgetName in pairs(self.widgets) do
+    self:Update(widgetName, withAnimation)
   end
 end
+
+---@param self CoreModule
+local updateWidgetsSilently = function(self)
+  self:UpdateWidgets(false);
+end
+
+---@param self CoreModule
+local updateWidgetsWithAnimation = function(self)
+  self:UpdateWidgets(true);
+end
+
+---@param self CoreModule
+local updateWithAnimation = function(self, widgetType, dataId)
+  local widgetName = getWidgetName(widgetType, dataId)
+  local widget = self.widgets[widgetName]
+
+  if not widget then
+    error("Can not find widget of type " .. widgetType)
+  end
+
+  local animated = true
+  self:Update(widgetName, animated)
+end
+
+---@class CoreModule
+local coreModule = {
+  widgets = {}, ---@type table<string, WidgetFrame>
+  widgetInfo = {}, ---@type table<string, WidgetInfo>
+  CommandHelp = commandHelp,
+  CreateWidget = createWidget,
+  HideOrShowWidgets = hideOrShowWidgets,
+  InitWidgets = initWidgets,
+  OnEvent = onEvent,
+  OnLoad = onLoad,
+  ResetWidgets = resetWidgets,
+  RegisterAnimations = registerAnimations,
+  SetDefaultBalance = setDefaultBalance,
+  Update = update,
+  UpdateWidgets = updateWidgets,
+  UpdateWidgetsSilently = updateWidgetsSilently,
+  UpdateWidgetsWithAnimation = updateWidgetsWithAnimation,
+  UpdateWithAnimation = updateWithAnimation,
+}
+
+addon.Core = coreModule
+addon.Core:OnLoad()
+
+local mainFrame = CreateFrame("Frame", "MoneyToast")
+mainFrame:RegisterEvent("ADDON_LOADED");
+mainFrame:RegisterEvent("PLAYER_MONEY");
+mainFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
+mainFrame:RegisterEvent("VARIABLES_LOADED");
+mainFrame:RegisterEvent("CURRENCY_DISPLAY_UPDATE");
+mainFrame:SetScript("OnEvent", addon.Core.OnEvent)

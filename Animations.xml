@@ -1,0 +1,6 @@
+<Ui>
+    <Script file="Animations.lua"/>
+    <Script file="animationTemplates/Balance.lua"/>
+    <Script file="animationTemplates/FrameFadeIn.lua"/>
+    <Script file="animationTemplates/FrameFadeOut.lua"/>
+</Ui>
