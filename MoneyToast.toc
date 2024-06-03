@@ -11,4 +11,6 @@ localization-ruRU.lua
 
 Utilities.lua
 Animations.xml
+Compartment.lua
+
 MoneyToast.xml
