@@ -1,0 +1,24 @@
+{
+    "bumpFiles": [
+        {
+            "filename": "MoneyToast.toc",
+            "updater": ".dev/toc-updater.js"
+        },
+        {
+            "filename": "MoneyToast_Classic.toc",
+            "updater": ".dev/toc-updater.js"
+        },
+        {
+            "filename": "MoneyToast_Wrath.toc",
+            "updater": ".dev/toc-updater.js"
+        },
+        {
+            "filename": "MoneyToast_Mainline.toc",
+            "updater": ".dev/toc-updater.js"
+        }
+    ],
+    "commitUrlFormat": "https://git.tsno.de/{{owner}}/{{repository}}/commit/{{hash}}",
+    "compareUrlFormat": "https://git.tsno.de/{{owner}}/{{repository}}/compare/{{previousTag}}...{{currentTag}}",
+    "issueUrlFormat": "https://git.tsno.de/{{owner}}/{{repository}}/issues/{{id}}",
+    "userUrlFormat": "https://git.tsno.de/{{user}}"
+}

@@ -1,7 +1,12 @@
 package-as: MoneyToast
 
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
 ignore:
-  - LICENSE
-  - README.md
+  - .versionrc
+  - .dev
+  - .vscode
 
 license-output: LICENSE

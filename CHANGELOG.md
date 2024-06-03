@@ -2,37 +2,6 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## 1.1.0 (2024-06-03)
-
-
-### Features
-
-* bump to interface 100105 ([94c1bd9](https://git.tsno.de/dragtheron/moneytoast/commit/94c1bd993d65a1752873d9330669f5f811218b37))
-* **l18n:** integrate ruRU translation ([2defb53](https://git.tsno.de/dragtheron/moneytoast/commit/2defb53ef487040c8a7b735dced6de633be153b9))
-* lower frame strata ([30057f4](https://git.tsno.de/dragtheron/moneytoast/commit/30057f4a711b9d369cd60dbfc40144eab2d7fb7e))
-* make frame movable and optionally persistent ([731103f](https://git.tsno.de/dragtheron/moneytoast/commit/731103fa7ece1a6dd6939edc8da6033e08408e4b))
-* merge master ([339aab7](https://git.tsno.de/dragtheron/moneytoast/commit/339aab770c19564079beebca05f0f3ade820ccd0))
-* raise interface version ([a7ae219](https://git.tsno.de/dragtheron/moneytoast/commit/a7ae219b1a6de8662365a2f893651b9faef3fe2c))
-* update to interface 100005 ([80e1803](https://git.tsno.de/dragtheron/moneytoast/commit/80e1803f1d69e23beea3acc1636bd78eb2c6632c))
-* upgrade to 10.1 ([35c6f1a](https://git.tsno.de/dragtheron/moneytoast/commit/35c6f1a8274d5b4bf5d48f9cf9c9ca2a542d3149))
-* use .pkgmeta ([6c312e9](https://git.tsno.de/dragtheron/moneytoast/commit/6c312e92823b19b86db148f23f946604e281ff99))
-* use prefix-less toc for curse support ([c2ec31a](https://git.tsno.de/dragtheron/moneytoast/commit/c2ec31ae911c9469f189fbcf4d1505b63aae5407))
-
-
-### Bug Fixes
-
-* determine total while animation is active ([0932276](https://git.tsno.de/dragtheron/moneytoast/commit/0932276242ef788084e42b7ce9a8946cad9c997d))
-* do not override blizzard's globals ([54a2efb](https://git.tsno.de/dragtheron/moneytoast/commit/54a2efbb057a58ee66ac1a6613848c119635c9d5))
-* remove beta tag from version string ([dc2d529](https://git.tsno.de/dragtheron/moneytoast/commit/dc2d5294411834b08fd1632c0819327f2e5fdbec))
-* reposition toast frame ([0089f7b](https://git.tsno.de/dragtheron/moneytoast/commit/0089f7b5320e53d26b342ed105ba20011857e732))
-
-## 1.3.0 (June 2, 2024)
-
-### Currency Support
-
-In Remix: Mists of Pandaria, you collect Bronze rather than gold.
-Now you can track this currency the same way as your money.
-Stay tuned: In a future update, you will be able to track even more currencies via the Currencies tab!
 
 ## 1.2.6 (September 6, 2023)
 
