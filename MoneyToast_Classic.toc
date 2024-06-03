@@ -2,7 +2,7 @@
 ## Title: Money Toast
 ## Notes: Immersive notifications about gold changes
 ## Author: Tobias Stettner (Dragtheron)
-## Version: 1.2.6
+## Version: 2.0.0-beta.0
 
 ## SavedVariables: MONEYTOAST_VARIABLES
 

@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-beta.0](https://git.tsno.de/dragtheron/moneytoast/compare/v1.2.6...v2.0.0-beta.0) (2024-06-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* Modularized code: This addon does not expose any functions globally anymore.
+* Streamlined animation system.
+
+### Features
+
+* Add entry in Addon Compartment menu ([6ef0f77](https://git.tsno.de/dragtheron/moneytoast/commit/6ef0f774c345c2ab003dcbe0f25a74819c75809a))
+* Support currencies and multiple toast widgets; Activate Bronze currency ([3afd0ec](https://git.tsno.de/dragtheron/moneytoast/commit/3afd0ec2b86a0f258acd102835e75ec78355063a))
+* Support WoW 10.2.7 ([24a907e](https://git.tsno.de/dragtheron/moneytoast/commit/24a907e2a5365f9073d72c4b19c1e1faf18afa79))
 
 ## 1.2.6 (September 6, 2023)
 
